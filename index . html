@@ -1,0 +1,238 @@
+<title>Neon Underground</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #00f3ff;
+    font-family: "Courier New", monospace;
+    text-align: center;
+  }
+
+  h1 {
+    color: #bc13fe;
+    text-shadow: 0 0 15px #bc13fe;
+    margin-top: 30px;
+    letter-spacing: 4px;
+  }
+
+  .box {
+    max-width: 850px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 2px solid #bc13fe;
+    box-shadow: 0 0 20px #bc13fe;
+    border-radius: 12px;
+  }
+
+  input, button {
+    padding: 12px;
+    font-family: inherit;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+
+  input {
+    width: 60%;
+    background: black;
+    color: #00f3ff;
+    border: 2px solid #00f3ff;
+  }
+
+  button {
+    background: #bc13fe;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.85;
+  }
+
+  #chat {
+    height: 320px;
+    overflow-y: auto;
+    text-align: left;
+    border: 2px solid #00f3ff;
+    padding: 15px;
+    margin-top: 15px;
+  }
+
+  .system {
+    color: #bc13fe;
+  }
+
+  .glow {
+    color: gold;
+    text-shadow: 0 0 10px gold;
+  }
+
+  #barOuter {
+    height: 25px;
+    border: 2px solid #00f3ff;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  #bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00f3ff, #bc13fe, gold);
+    transition: width 0.3s;
+  }
+
+  #flash {
+    position: fixed;
+    inset: 0;
+    background: #bc13fe;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flash {
+    animation: flash 2s;
+  }
+
+  @keyframes flash {
+    0% { opacity: 0; }
+    30% { opacity: 0.7; }
+    60% { opacity: 0.2; }
+    100% { opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+
+<div id="flash"></div>
+
+<h1>NEON UNDERGROUND</h1>
+<p>Type messages, earn XP, level up, and power the Neon Core.</p>
+
+<div class="box" id="login">
+  <h2>Enter your username</h2>
+  <input id="nameInput" placeholder="Your neon name...">
+  <button onclick="startGame()">Start</button>
+</div>
+
+<div id="game" style="display:none;">
+  <div class="box">
+    <p>Name: <span id="name"></span></p>
+    <p>XP: <span id="xp">0</span></p>
+    <p>Level: <span id="level">1</span></p>
+    <p>Rank: <span id="rank">Drifter</span></p>
+
+    <h3>Global Power Bar</h3>
+    <div id="barOuter">
+      <div id="bar"></div>
+    </div>
+
+    <div id="chat">
+      <p class="system">SYSTEM: Welcome to Neon Underground.</p>
+      <p class="system">SYSTEM: Every message gives you 10 XP.</p>
+    </div>
+
+    <br>
+
+    <input id="messageInput" placeholder="Type command or message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+let username = "";
+let xp = 0;
+let level = 1;
+let rank = "Drifter";
+let power = 0;
+
+function startGame() {
+  username = document.getElementById("nameInput").value.trim();
+
+  if (username.length < 3) {
+    alert("Name must be at least 3 characters.");
+    return;
+  }
+
+  document.getElementById("login").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  document.getElementById("name").textContent = username;
+}
+
+function sendMessage() {
+  const input = document.getElementById("messageInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const chat = document.getElementById("chat");
+  const msg = document.createElement("p");
+
+  if (rank === "Neon Legend") {
+    msg.innerHTML = `<span class="glow">${username}</span>: ${text}`;
+  } else {
+    msg.innerHTML = `<b>${username}</b>: ${text}`;
+  }
+
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+
+  input.value = "";
+  addXP();
+}
+
+function addXP() {
+  xp += 10;
+  power += 10;
+
+  if (xp >= 300) {
+    level = 4;
+    rank = "Neon Legend";
+  } else if (xp >= 200) {
+    level = 3;
+    rank = "Cyber Ghost";
+  } else if (xp >= 100) {
+    level = 2;
+    rank = "Neon Runner";
+  }
+
+  if (power >= 100) {
+    power = 0;
+    overload();
+  }
+
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById("xp").textContent = xp;
+  document.getElementById("level").textContent = level;
+  document.getElementById("rank").textContent = rank;
+  document.getElementById("bar").style.width = power + "%";
+}
+
+function overload() {
+  const chat = document.getElementById("chat");
+
+  const msg = document.createElement("p");
+  msg.className = "system";
+  msg.textContent = "SYSTEM OVERLOAD: Purple neon energy released!";
+  chat.appendChild(msg);
+
+  const flash = document.getElementById("flash");
+  flash.classList.add("flash");
+
+  setTimeout(() => {
+    flash.classList.remove("flash");
+  }, 2000);
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
+</script>
+
+</body>
+</html>
