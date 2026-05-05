@@ -1,238 +1,207 @@
-<title>Neon Underground</title>
+<!DOCTYPE html>
 
-<style>
-  body {
-    margin: 0;
-    background: #000;
-    color: #00f3ff;
-    font-family: "Courier New", monospace;
-    text-align: center;
-  }
+<html>
 
-  h1 {
-    color: #bc13fe;
-    text-shadow: 0 0 15px #bc13fe;
-    margin-top: 30px;
-    letter-spacing: 4px;
-  }
+<head>
 
-  .box {
-    max-width: 850px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 2px solid #bc13fe;
-    box-shadow: 0 0 20px #bc13fe;
-    border-radius: 12px;
-  }
+  <title>Neon Underground Arcade</title>
 
-  input, button {
-    padding: 12px;
-    font-family: inherit;
-    font-size: 16px;
-    border-radius: 8px;
-  }
+  <style>
 
-  input {
-    width: 60%;
-    background: black;
-    color: #00f3ff;
-    border: 2px solid #00f3ff;
-  }
+    body{margin:0;background:#050008;color:#00f3ff;font-family:"Courier New",monospace;text-align:center}
 
-  button {
-    background: #bc13fe;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+    h1{color:#bc13fe;text-shadow:0 0 20px #bc13fe;font-size:42px}
 
-  button:hover {
-    opacity: 0.85;
-  }
+    button,input{font-family:inherit;padding:12px;margin:7px;border-radius:8px;border:2px solid #00f3ff;background:#080010;color:#00f3ff}
 
-  #chat {
-    height: 320px;
-    overflow-y: auto;
-    text-align: left;
-    border: 2px solid #00f3ff;
-    padding: 15px;
-    margin-top: 15px;
-  }
+    button{cursor:pointer;box-shadow:0 0 12px #00f3ff}
 
-  .system {
-    color: #bc13fe;
-  }
+    button:hover{background:#bc13fe;color:white}
 
-  .glow {
-    color: gold;
-    text-shadow: 0 0 10px gold;
-  }
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;padding:25px}
 
-  #barOuter {
-    height: 25px;
-    border: 2px solid #00f3ff;
-    border-radius: 20px;
-    overflow: hidden;
-  }
+    .card{border:2px solid #bc13fe;border-radius:15px;padding:20px;box-shadow:0 0 18px #bc13fe;background:#120018}
 
-  #bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00f3ff, #bc13fe, gold);
-    transition: width 0.3s;
-  }
+    #game{max-width:850px;margin:20px auto;padding:20px;border:2px solid #00f3ff;box-shadow:0 0 20px #00f3ff;border-radius:15px}
 
-  #flash {
-    position: fixed;
-    inset: 0;
-    background: #bc13fe;
-    opacity: 0;
-    pointer-events: none;
-  }
+    .big{font-size:28px}
 
-  .flash {
-    animation: flash 2s;
-  }
+    canvas{background:#000;border:2px solid #bc13fe;box-shadow:0 0 20px #bc13fe}
 
-  @keyframes flash {
-    0% { opacity: 0; }
-    30% { opacity: 0.7; }
-    60% { opacity: 0.2; }
-    100% { opacity: 0; }
-  }
-</style>
+  </style>
+
 </head>
 
 <body>
 
-<div id="flash"></div>
+<h1>NEON UNDERGROUND ARCADE</h1>
 
-<h1>NEON UNDERGROUND</h1>
-<p>Type messages, earn XP, level up, and power the Neon Core.</p>
+<p>10 games. No music. Pure neon fun.</p>
 
-<div class="box" id="login">
-  <h2>Enter your username</h2>
-  <input id="nameInput" placeholder="Your neon name...">
-  <button onclick="startGame()">Start</button>
-</div>
+<div id="menu" class="grid"></div>
 
-<div id="game" style="display:none;">
-  <div class="box">
-    <p>Name: <span id="name"></span></p>
-    <p>XP: <span id="xp">0</span></p>
-    <p>Level: <span id="level">1</span></p>
-    <p>Rank: <span id="rank">Drifter</span></p>
-
-    <h3>Global Power Bar</h3>
-    <div id="barOuter">
-      <div id="bar"></div>
-    </div>
-
-    <div id="chat">
-      <p class="system">SYSTEM: Welcome to Neon Underground.</p>
-      <p class="system">SYSTEM: Every message gives you 10 XP.</p>
-    </div>
-
-    <br>
-
-    <input id="messageInput" placeholder="Type command or message...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-</div>
+<div id="game"></div>
 
 <script>
-let username = "";
-let xp = 0;
-let level = 1;
-let rank = "Drifter";
-let power = 0;
 
-function startGame() {
-  username = document.getElementById("nameInput").value.trim();
+let games=[
 
-  if (username.length < 3) {
-    alert("Name must be at least 3 characters.");
-    return;
-  }
+["Neon Tap","Tap as fast as you can in 10 seconds!",tapGame],
 
-  document.getElementById("login").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  document.getElementById("name").textContent = username;
-}
+["Reaction Flash","Click when the screen turns green!",reactionGame],
 
-function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const text = input.value.trim();
-  if (!text) return;
+["Memory Glow","Find the matching emoji pairs!",memoryGame],
 
-  const chat = document.getElementById("chat");
-  const msg = document.createElement("p");
+["Math Blaster","Solve quick math before time ends!",mathGame],
 
-  if (rank === "Neon Legend") {
-    msg.innerHTML = `<span class="glow">${username}</span>: ${text}`;
-  } else {
-    msg.innerHTML = `<b>${username}</b>: ${text}`;
-  }
+["Word Scramble","Unscramble the neon word!",wordGame],
 
-  chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
+["Color Rush","Pick the color, not the word!",colorGame],
 
-  input.value = "";
-  addXP();
-}
+["Dodge Cube","Avoid falling neon blocks!",dodgeGame],
 
-function addXP() {
-  xp += 10;
-  power += 10;
+["Guess Code","Guess the secret number!",guessGame],
 
-  if (xp >= 300) {
-    level = 4;
-    rank = "Neon Legend";
-  } else if (xp >= 200) {
-    level = 3;
-    rank = "Cyber Ghost";
-  } else if (xp >= 100) {
-    level = 2;
-    rank = "Neon Runner";
-  }
+["Aim Trainer","Click the moving target!",aimGame],
 
-  if (power >= 100) {
-    power = 0;
-    overload();
-  }
+["Cyber Quiz","Answer quick questions!",quizGame]
 
-  updateUI();
-}
+];
 
-function updateUI() {
-  document.getElementById("xp").textContent = xp;
-  document.getElementById("level").textContent = level;
-  document.getElementById("rank").textContent = rank;
-  document.getElementById("bar").style.width = power + "%";
-}
+let menu=document.getElementById("menu"), game=document.getElementById("game");
 
-function overload() {
-  const chat = document.getElementById("chat");
+games.forEach((g,i)=>{
 
-  const msg = document.createElement("p");
-  msg.className = "system";
-  msg.textContent = "SYSTEM OVERLOAD: Purple neon energy released!";
-  chat.appendChild(msg);
+  menu.innerHTML+=`
 
-  const flash = document.getElementById("flash");
-  flash.classList.add("flash");
+  <div class="card">
 
-  setTimeout(() => {
-    flash.classList.remove("flash");
-  }, 2000);
-}
+    <h2>${g[0]}</h2>
 
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
+    <p>${g[1]}</p>
+
+    <button onclick="games[${i}][2]()">PLAY NOW</button>
+
+  </div>`;
+
 });
+
+function back(){game.innerHTML="";}
+
+function tapGame(){
+
+let score=0,time=10;
+
+game.innerHTML=`<h2>Neon Tap</h2><p>Time: <span id="t">${time}</span></p><p class="big">Score: <span id="s">0</span></p><button onclick="score++;s.innerText=score">TAP!</button><br><button onclick="back()">Back</button>`;
+
+let timer=setInterval(()=>{time--;t.innerText=time;if(time<=0){clearInterval(timer);alert("Score: "+score)}},1000);
+
+}
+
+function reactionGame(){
+
+game.innerHTML=`<h2>Reaction Flash</h2><p>Wait until it says CLICK!</p><button id="rbtn">Wait...</button><br><button onclick="back()">Back</button>`;
+
+let ready=false,start;
+
+rbtn.onclick=()=> ready?alert("Reaction: "+(Date.now()-start)+" ms"):alert("Too early!");
+
+setTimeout(()=>{ready=true;start=Date.now();rbtn.innerText="CLICK NOW!";rbtn.style.background="lime";rbtn.style.color="black"},Math.random()*3000+1500);
+
+}
+
+function memoryGame(){
+
+let icons=["🚀","👾","💎","🔥","⚡","🌙"], cards=[...icons,...icons].sort(()=>Math.random()-0.5), first=null, lock=false, found=0;
+
+game.innerHTML=`<h2>Memory Glow</h2><div id="board" class="grid"></div><button onclick="back()">Back</button>`;
+
+cards.forEach((c,i)=>board.innerHTML+=`<button id="c${i}" onclick="flip(${i},'${c}')">?</button>`);
+
+window.flip=(i,c)=>{if(lock||document.getElementById("c"+i).innerText!="?")return;document.getElementById("c"+i).innerText=c;
+
+if(!first)first=[i,c];else{if(first[1]==c){found++;first=null;if(found==icons.length)alert("You win!")}else{lock=true;setTimeout(()=>{document.getElementById("c"+i).innerText="?";document.getElementById("c"+first[0]).innerText="?";first=null;lock=false},700)}}}
+
+}
+
+function mathGame(){
+
+let score=0,time=30,a,b,ans;
+
+game.innerHTML=`<h2>Math Blaster</h2><p>Time: <span id="mt">30</span></p><p id="q"></p><input id="answer"><button onclick="checkMath()">OK</button><p>Score: <span id="ms">0</span></p><button onclick="back()">Back</button>`;
+
+function newQ(){a=Math.ceil(Math.random()*20);b=Math.ceil(Math.random()*20);ans=a+b;q.innerText=a+" + "+b+" = ?";answer.value=""}
+
+window.checkMath=()=>{if(Number(answer.value)==ans){score++;ms.innerText=score;newQ()}};
+
+newQ();let timer=setInterval(()=>{time--;mt.innerText=time;if(time<=0){clearInterval(timer);alert("Score: "+score)}},1000);
+
+}
+
+function wordGame(){
+
+let words=["NEON","CYBER","ARCADE","GHOST","LASER"], w=words[Math.floor(Math.random()*words.length)], scr=w.split("").sort(()=>Math.random()-0.5).join("");
+
+game.innerHTML=`<h2>Word Scramble</h2><p class="big">${scr}</p><input id="word"><button onclick="alert(word.value.toUpperCase()=='${w}'?'Correct!':'Try again!')">Check</button><br><button onclick="back()">Back</button>`;
+
+}
+
+function colorGame(){
+
+let colors=["red","blue","green","yellow","purple"], real=colors[Math.floor(Math.random()*colors.length)], fake=colors[Math.floor(Math.random()*colors.length)];
+
+game.innerHTML=`<h2>Color Rush</h2><p>Click the COLOR, not the word.</p><h1 style="color:${real}">${fake}</h1><button onclick="alert('${real}'=='red'?'Correct!':'Wrong!')">Red</button><button onclick="alert('${real}'=='blue'?'Correct!':'Wrong!')">Blue</button><button onclick="alert('${real}'=='green'?'Correct!':'Wrong!')">Green</button><button onclick="alert('${real}'=='yellow'?'Correct!':'Wrong!')">Yellow</button><button onclick="alert('${real}'=='purple'?'Correct!':'Wrong!')">Purple</button><br><button onclick="back()">Back</button>`;
+
+}
+
+function dodgeGame(){
+
+game.innerHTML=`<h2>Dodge Cube</h2><p>Move mouse/touch to dodge.</p><canvas id="can" width="360" height="360"></canvas><br><button onclick="back()">Back</button>`;
+
+let ctx=can.getContext("2d"),x=170,blocks=[],score=0,run=true;
+
+can.onmousemove=e=>x=e.offsetX-15;can.ontouchmove=e=>{x=e.touches[0].clientX-can.getBoundingClientRect().left-15};
+
+function loop(){if(!run)return;ctx.clearRect(0,0,360,360);ctx.fillStyle="#00f3ff";ctx.fillRect(x,330,30,30);
+
+if(Math.random()<.04)blocks.push({x:Math.random()*330,y:0});ctx.fillStyle="#bc13fe";
+
+blocks.forEach(b=>{b.y+=4;ctx.fillRect(b.x,b.y,30,30);if(b.y>310&&b.x<x+30&&b.x+30>x){run=false;alert("Game over! Score: "+score)}});
+
+score++;requestAnimationFrame(loop)}loop();
+
+}
+
+function guessGame(){
+
+let secret=Math.ceil(Math.random()*50),tries=0;
+
+game.innerHTML=`<h2>Guess Code</h2><p>Guess number 1-50</p><input id="gnum"><button onclick="tries++;let n=Number(gnum.value);alert(n==${secret}?'Correct in '+tries+' tries!':n<${secret}?'Too low':'Too high')">Guess</button><br><button onclick="back()">Back</button>`;
+
+}
+
+function aimGame(){
+
+let score=0;
+
+game.innerHTML=`<h2>Aim Trainer</h2><p>Score: <span id="as">0</span></p><div id="target" onclick="score++;as.innerText=score;move()" style="position:relative;margin:20px auto;width:300px;height:300px;border:2px solid #00f3ff"><button id="dot" style="position:absolute">🎯</button></div><button onclick="back()">Back</button>`;
+
+window.move=()=>{dot.style.left=Math.random()*240+"px";dot.style.top=Math.random()*240+"px"};move();
+
+}
+
+function quizGame(){
+
+let qs=[["2+2?", "4"],["Color of sky?", "blue"],["Opposite of cold?", "hot"],["HTML makes?", "website"]];
+
+let q=qs[Math.floor(Math.random()*qs.length)];
+
+game.innerHTML=`<h2>Cyber Quiz</h2><p>${q[0]}</p><input id="qa"><button onclick="alert(qa.value.toLowerCase()=='${q[1]}'?'Correct!':'Wrong!')">Answer</button><br><button onclick="back()">Back</button>`;
+
+}
+
 </script>
 
 </body>
+
 </html>
