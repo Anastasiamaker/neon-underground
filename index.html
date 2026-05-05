@@ -36,7 +36,7 @@
 
 <h1>NEON UNDERGROUND ARCADE</h1>
 
-<p>10 games. No music. Pure neon fun.</p>
+<p>10 neon games. No music. Pure fun.</p>
 
 <div id="menu" class="grid"></div>
 
@@ -48,17 +48,17 @@ let games=[
 
 ["Neon Tap","Tap as fast as you can in 10 seconds!",tapGame],
 
-["Reaction Flash","Click when the screen turns green!",reactionGame],
+["Reaction Flash","Click only when it says CLICK!",reactionGame],
 
-["Memory Glow","Find the matching emoji pairs!",memoryGame],
+["Memory Glow","Match the emoji pairs!",memoryGame],
 
-["Math Blaster","Solve quick math before time ends!",mathGame],
+["Math Blaster","Solve fast math problems!",mathGame],
 
-["Word Scramble","Unscramble the neon word!",wordGame],
+["Word Scramble","Unscramble the word!",wordGame],
 
 ["Color Rush","Pick the color, not the word!",colorGame],
 
-["Dodge Cube","Avoid falling neon blocks!",dodgeGame],
+["Dodge Cube","Dodge falling neon blocks!",dodgeGame],
 
 ["Guess Code","Guess the secret number!",guessGame],
 
@@ -68,135 +68,439 @@ let games=[
 
 ];
 
-let menu=document.getElementById("menu"), game=document.getElementById("game");
+let menu=document.getElementById("menu");
+
+let game=document.getElementById("game");
 
 games.forEach((g,i)=>{
 
   menu.innerHTML+=`
 
-  <div class="card">
+    <div class="card">
 
-    <h2>${g[0]}</h2>
+      <h2>${g[0]}</h2>
 
-    <p>${g[1]}</p>
+      <p>${g[1]}</p>
 
-    <button onclick="games[${i}][2]()">PLAY NOW</button>
+      <button onclick="games[${i}][2]()">PLAY NOW</button>
 
-  </div>`;
+    </div>`;
 
 });
 
-function back(){game.innerHTML="";}
+function back(){
+
+  game.innerHTML="";
+
+}
 
 function tapGame(){
 
-let score=0,time=10;
+  let score=0;
 
-game.innerHTML=`<h2>Neon Tap</h2><p>Time: <span id="t">${time}</span></p><p class="big">Score: <span id="s">0</span></p><button onclick="score++;s.innerText=score">TAP!</button><br><button onclick="back()">Back</button>`;
+  let time=10;
 
-let timer=setInterval(()=>{time--;t.innerText=time;if(time<=0){clearInterval(timer);alert("Score: "+score)}},1000);
+  game.innerHTML=`
+
+    <h2>Neon Tap</h2>
+
+    <p>Time: <span id="t">${time}</span></p>
+
+    <p class="big">Score: <span id="s">0</span></p>
+
+    <button onclick="score++;s.innerText=score">TAP!</button>
+
+    <br><button onclick="back()">Back</button>`;
+
+  let timer=setInterval(()=>{
+
+    time--;
+
+    t.innerText=time;
+
+    if(time<=0){
+
+      clearInterval(timer);
+
+      alert("Final score: "+score);
+
+    }
+
+  },1000);
 
 }
 
 function reactionGame(){
 
-game.innerHTML=`<h2>Reaction Flash</h2><p>Wait until it says CLICK!</p><button id="rbtn">Wait...</button><br><button onclick="back()">Back</button>`;
+  game.innerHTML=`
 
-let ready=false,start;
+    <h2>Reaction Flash</h2>
 
-rbtn.onclick=()=> ready?alert("Reaction: "+(Date.now()-start)+" ms"):alert("Too early!");
+    <p>Wait until the button changes.</p>
 
-setTimeout(()=>{ready=true;start=Date.now();rbtn.innerText="CLICK NOW!";rbtn.style.background="lime";rbtn.style.color="black"},Math.random()*3000+1500);
+    <button id="rbtn">WAIT...</button>
+
+    <br><button onclick="back()">Back</button>`;
+
+  let ready=false;
+
+  let start=0;
+
+  rbtn.onclick=()=>{
+
+    if(!ready){alert("Too early!");return;}
+
+    alert("Reaction time: "+(Date.now()-start)+" ms");
+
+  };
+
+  setTimeout(()=>{
+
+    ready=true;
+
+    start=Date.now();
+
+    rbtn.innerText="CLICK NOW!";
+
+    rbtn.style.background="lime";
+
+    rbtn.style.color="black";
+
+  },Math.random()*3000+1500);
 
 }
 
 function memoryGame(){
 
-let icons=["🚀","👾","💎","🔥","⚡","🌙"], cards=[...icons,...icons].sort(()=>Math.random()-0.5), first=null, lock=false, found=0;
+  let icons=["🚀","👾","💎","🔥","⚡","🌙"];
 
-game.innerHTML=`<h2>Memory Glow</h2><div id="board" class="grid"></div><button onclick="back()">Back</button>`;
+  let cards=[...icons,...icons].sort(()=>Math.random()-0.5);
 
-cards.forEach((c,i)=>board.innerHTML+=`<button id="c${i}" onclick="flip(${i},'${c}')">?</button>`);
+  let first=null;
 
-window.flip=(i,c)=>{if(lock||document.getElementById("c"+i).innerText!="?")return;document.getElementById("c"+i).innerText=c;
+  let lock=false;
 
-if(!first)first=[i,c];else{if(first[1]==c){found++;first=null;if(found==icons.length)alert("You win!")}else{lock=true;setTimeout(()=>{document.getElementById("c"+i).innerText="?";document.getElementById("c"+first[0]).innerText="?";first=null;lock=false},700)}}}
+  let found=0;
+
+  game.innerHTML=`<h2>Memory Glow</h2><div id="board" class="grid"></div><button onclick="back()">Back</button>`;
+
+  cards.forEach((c,i)=>{
+
+    board.innerHTML+=`<button id="c${i}" onclick="flip(${i},'${c}')">?</button>`;
+
+  });
+
+  window.flip=(i,c)=>{
+
+    let btn=document.getElementById("c"+i);
+
+    if(lock || btn.innerText!="?") return;
+
+    btn.innerText=c;
+
+    if(!first){
+
+      first=[i,c];
+
+    } else {
+
+      if(first[1]===c){
+
+        found++;
+
+        first=null;
+
+        if(found===icons.length) alert("You win!");
+
+      } else {
+
+        lock=true;
+
+        setTimeout(()=>{
+
+          btn.innerText="?";
+
+          document.getElementById("c"+first[0]).innerText="?";
+
+          first=null;
+
+          lock=false;
+
+        },700);
+
+      }
+
+    }
+
+  };
 
 }
 
 function mathGame(){
 
-let score=0,time=30,a,b,ans;
+  let score=0;
 
-game.innerHTML=`<h2>Math Blaster</h2><p>Time: <span id="mt">30</span></p><p id="q"></p><input id="answer"><button onclick="checkMath()">OK</button><p>Score: <span id="ms">0</span></p><button onclick="back()">Back</button>`;
+  let time=30;
 
-function newQ(){a=Math.ceil(Math.random()*20);b=Math.ceil(Math.random()*20);ans=a+b;q.innerText=a+" + "+b+" = ?";answer.value=""}
+  let a,b,ans;
 
-window.checkMath=()=>{if(Number(answer.value)==ans){score++;ms.innerText=score;newQ()}};
+  game.innerHTML=`
 
-newQ();let timer=setInterval(()=>{time--;mt.innerText=time;if(time<=0){clearInterval(timer);alert("Score: "+score)}},1000);
+    <h2>Math Blaster</h2>
+
+    <p>Time: <span id="mt">30</span></p>
+
+    <p id="q"></p>
+
+    <input id="answer">
+
+    <button onclick="checkMath()">OK</button>
+
+    <p>Score: <span id="ms">0</span></p>
+
+    <button onclick="back()">Back</button>`;
+
+  function newQ(){
+
+    a=Math.ceil(Math.random()*20);
+
+    b=Math.ceil(Math.random()*20);
+
+    ans=a+b;
+
+    q.innerText=a+" + "+b+" = ?";
+
+    answer.value="";
+
+  }
+
+  window.checkMath=()=>{
+
+    if(Number(answer.value)===ans){
+
+      score++;
+
+      ms.innerText=score;
+
+      newQ();
+
+    }
+
+  };
+
+  newQ();
+
+  let timer=setInterval(()=>{
+
+    time--;
+
+    mt.innerText=time;
+
+    if(time<=0){
+
+      clearInterval(timer);
+
+      alert("Score: "+score);
+
+    }
+
+  },1000);
 
 }
 
 function wordGame(){
 
-let words=["NEON","CYBER","ARCADE","GHOST","LASER"], w=words[Math.floor(Math.random()*words.length)], scr=w.split("").sort(()=>Math.random()-0.5).join("");
+  let words=["NEON","CYBER","ARCADE","GHOST","LASER","POWER"];
 
-game.innerHTML=`<h2>Word Scramble</h2><p class="big">${scr}</p><input id="word"><button onclick="alert(word.value.toUpperCase()=='${w}'?'Correct!':'Try again!')">Check</button><br><button onclick="back()">Back</button>`;
+  let w=words[Math.floor(Math.random()*words.length)];
+
+  let scr=w.split("").sort(()=>Math.random()-0.5).join("");
+
+  game.innerHTML=`
+
+    <h2>Word Scramble</h2>
+
+    <p class="big">${scr}</p>
+
+    <input id="word">
+
+    <button onclick="alert(word.value.toUpperCase()==='${w}'?'Correct!':'Try again!')">Check</button>
+
+    <br><button onclick="back()">Back</button>`;
 
 }
 
 function colorGame(){
 
-let colors=["red","blue","green","yellow","purple"], real=colors[Math.floor(Math.random()*colors.length)], fake=colors[Math.floor(Math.random()*colors.length)];
+  let colors=["red","blue","green","yellow","purple"];
 
-game.innerHTML=`<h2>Color Rush</h2><p>Click the COLOR, not the word.</p><h1 style="color:${real}">${fake}</h1><button onclick="alert('${real}'=='red'?'Correct!':'Wrong!')">Red</button><button onclick="alert('${real}'=='blue'?'Correct!':'Wrong!')">Blue</button><button onclick="alert('${real}'=='green'?'Correct!':'Wrong!')">Green</button><button onclick="alert('${real}'=='yellow'?'Correct!':'Wrong!')">Yellow</button><button onclick="alert('${real}'=='purple'?'Correct!':'Wrong!')">Purple</button><br><button onclick="back()">Back</button>`;
+  let real=colors[Math.floor(Math.random()*colors.length)];
+
+  let fake=colors[Math.floor(Math.random()*colors.length)];
+
+  game.innerHTML=`
+
+    <h2>Color Rush</h2>
+
+    <p>Click the COLOR of the word, not what the word says.</p>
+
+    <h1 style="color:${real}">${fake}</h1>
+
+    ${colors.map(c=>`<button onclick="alert('${real}'==='${c}'?'Correct!':'Wrong!')">${c}</button>`).join("")}
+
+    <br><button onclick="back()">Back</button>`;
 
 }
 
 function dodgeGame(){
 
-game.innerHTML=`<h2>Dodge Cube</h2><p>Move mouse/touch to dodge.</p><canvas id="can" width="360" height="360"></canvas><br><button onclick="back()">Back</button>`;
+  game.innerHTML=`
 
-let ctx=can.getContext("2d"),x=170,blocks=[],score=0,run=true;
+    <h2>Dodge Cube</h2>
 
-can.onmousemove=e=>x=e.offsetX-15;can.ontouchmove=e=>{x=e.touches[0].clientX-can.getBoundingClientRect().left-15};
+    <p>Move your mouse or finger to dodge blocks.</p>
 
-function loop(){if(!run)return;ctx.clearRect(0,0,360,360);ctx.fillStyle="#00f3ff";ctx.fillRect(x,330,30,30);
+    <canvas id="can" width="360" height="360"></canvas>
 
-if(Math.random()<.04)blocks.push({x:Math.random()*330,y:0});ctx.fillStyle="#bc13fe";
+    <br><button onclick="back()">Back</button>`;
 
-blocks.forEach(b=>{b.y+=4;ctx.fillRect(b.x,b.y,30,30);if(b.y>310&&b.x<x+30&&b.x+30>x){run=false;alert("Game over! Score: "+score)}});
+  let ctx=can.getContext("2d");
 
-score++;requestAnimationFrame(loop)}loop();
+  let x=170;
+
+  let blocks=[];
+
+  let score=0;
+
+  let run=true;
+
+  can.onmousemove=e=>x=e.offsetX-15;
+
+  can.ontouchmove=e=>{
+
+    x=e.touches[0].clientX-can.getBoundingClientRect().left-15;
+
+  };
+
+  function loop(){
+
+    if(!run)return;
+
+    ctx.clearRect(0,0,360,360);
+
+    ctx.fillStyle="#00f3ff";
+
+    ctx.fillRect(x,330,30,30);
+
+    if(Math.random()<0.04) blocks.push({x:Math.random()*330,y:0});
+
+    ctx.fillStyle="#bc13fe";
+
+    blocks.forEach(b=>{
+
+      b.y+=4;
+
+      ctx.fillRect(b.x,b.y,30,30);
+
+      if(b.y>310 && b.x<x+30 && b.x+30>x){
+
+        run=false;
+
+        alert("Game over! Score: "+score);
+
+      }
+
+    });
+
+    score++;
+
+    requestAnimationFrame(loop);
+
+  }
+
+  loop();
 
 }
 
 function guessGame(){
 
-let secret=Math.ceil(Math.random()*50),tries=0;
+  let secret=Math.ceil(Math.random()*50);
 
-game.innerHTML=`<h2>Guess Code</h2><p>Guess number 1-50</p><input id="gnum"><button onclick="tries++;let n=Number(gnum.value);alert(n==${secret}?'Correct in '+tries+' tries!':n<${secret}?'Too low':'Too high')">Guess</button><br><button onclick="back()">Back</button>`;
+  let tries=0;
+
+  game.innerHTML=`
+
+    <h2>Guess Code</h2>
+
+    <p>Guess a number from 1 to 50</p>
+
+    <input id="gnum">
+
+    <button onclick="tries++;let n=Number(gnum.value);alert(n===${secret}?'Correct in '+tries+' tries!':n<${secret}?'Too low':'Too high')">Guess</button>
+
+    <br><button onclick="back()">Back</button>`;
 
 }
 
 function aimGame(){
 
-let score=0;
+  let score=0;
 
-game.innerHTML=`<h2>Aim Trainer</h2><p>Score: <span id="as">0</span></p><div id="target" onclick="score++;as.innerText=score;move()" style="position:relative;margin:20px auto;width:300px;height:300px;border:2px solid #00f3ff"><button id="dot" style="position:absolute">🎯</button></div><button onclick="back()">Back</button>`;
+  game.innerHTML=`
 
-window.move=()=>{dot.style.left=Math.random()*240+"px";dot.style.top=Math.random()*240+"px"};move();
+    <h2>Aim Trainer</h2>
+
+    <p>Score: <span id="as">0</span></p>
+
+    <div id="target" style="position:relative;margin:20px auto;width:300px;height:300px;border:2px solid #00f3ff">
+
+      <button id="dot" onclick="score++;as.innerText=score;move()" style="position:absolute">🎯</button>
+
+    </div>
+
+    <button onclick="back()">Back</button>`;
+
+  window.move=()=>{
+
+    dot.style.left=Math.random()*240+"px";
+
+    dot.style.top=Math.random()*240+"px";
+
+  };
+
+  move();
 
 }
 
 function quizGame(){
 
-let qs=[["2+2?", "4"],["Color of sky?", "blue"],["Opposite of cold?", "hot"],["HTML makes?", "website"]];
+  let qs=[
 
-let q=qs[Math.floor(Math.random()*qs.length)];
+    ["2 + 2?", "4"],
 
-game.innerHTML=`<h2>Cyber Quiz</h2><p>${q[0]}</p><input id="qa"><button onclick="alert(qa.value.toLowerCase()=='${q[1]}'?'Correct!':'Wrong!')">Answer</button><br><button onclick="back()">Back</button>`;
+    ["Color of the sky?", "blue"],
+
+    ["Opposite of cold?", "hot"],
+
+    ["HTML makes a?", "website"],
+
+    ["Fast animal: cheetah or turtle?", "cheetah"]
+
+  ];
+
+  let q=qs[Math.floor(Math.random()*qs.length)];
+
+  game.innerHTML=`
+
+    <h2>Cyber Quiz</h2>
+
+    <p>${q[0]}</p>
+
+    <input id="qa">
+
+    <button onclick="alert(qa.value.toLowerCase()==='${q[1]}'?'Correct!':'Wrong!')">Answer</button>
+
+    <br><button onclick="back()">Back</button>`;
 
 }
 
