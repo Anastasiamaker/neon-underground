@@ -4,31 +4,133 @@
 
 <head>
 
-  <title>Neon Underground Arcade</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
+<title>Neon Underground Arcade</title>
 
-    body{margin:0;background:#050008;color:#00f3ff;font-family:"Courier New",monospace;text-align:center}
+<style>
 
-    h1{color:#bc13fe;text-shadow:0 0 20px #bc13fe;font-size:42px}
+body{
 
-    button,input{font-family:inherit;padding:12px;margin:7px;border-radius:8px;border:2px solid #00f3ff;background:#080010;color:#00f3ff}
+  margin:0;
 
-    button{cursor:pointer;box-shadow:0 0 12px #00f3ff}
+  background:#050008;
 
-    button:hover{background:#bc13fe;color:white}
+  color:#00f3ff;
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;padding:25px}
+  font-family:"Courier New",monospace;
 
-    .card{border:2px solid #bc13fe;border-radius:15px;padding:20px;box-shadow:0 0 18px #bc13fe;background:#120018}
+  text-align:center;
 
-    #game{max-width:850px;margin:20px auto;padding:20px;border:2px solid #00f3ff;box-shadow:0 0 20px #00f3ff;border-radius:15px}
+}
 
-    .big{font-size:28px}
+h1{
 
-    canvas{background:#000;border:2px solid #bc13fe;box-shadow:0 0 20px #bc13fe}
+  color:#bc13fe;
 
-  </style>
+  text-shadow:0 0 20px #bc13fe;
+
+  animation: glow 2s infinite alternate;
+
+}
+
+@keyframes glow{
+
+  from{ text-shadow:0 0 10px #bc13fe;}
+
+  to{ text-shadow:0 0 30px #ff00ff;}
+
+}
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+  gap:15px;
+
+  padding:20px;
+
+}
+
+.card{
+
+  border:2px solid #bc13fe;
+
+  border-radius:15px;
+
+  padding:15px;
+
+  box-shadow:0 0 15px #bc13fe;
+
+  background:#120018;
+
+  transition:0.3s;
+
+}
+
+.card:hover{
+
+  transform:scale(1.05);
+
+  box-shadow:0 0 25px #ff00ff;
+
+}
+
+button{
+
+  padding:10px;
+
+  margin-top:10px;
+
+  border-radius:8px;
+
+  border:2px solid #00f3ff;
+
+  background:black;
+
+  color:#00f3ff;
+
+  cursor:pointer;
+
+}
+
+button:hover{
+
+  background:#bc13fe;
+
+  color:white;
+
+}
+
+#game{
+
+  margin:20px;
+
+  padding:20px;
+
+  border:2px solid #00f3ff;
+
+  box-shadow:0 0 20px #00f3ff;
+
+  border-radius:15px;
+
+}
+
+.topbar{
+
+  display:flex;
+
+  justify-content:space-around;
+
+  padding:10px;
+
+  font-size:14px;
+
+}
+
+</style>
 
 </head>
 
@@ -36,7 +138,19 @@
 
 <h1>NEON UNDERGROUND ARCADE</h1>
 
-<p>10 neon games. No music. Pure fun.</p>
+<div class="topbar">
+
+  <div>👤 <span id="player">Player</span></div>
+
+  <div>💰 Coins: <span id="coins">0</span></div>
+
+  <div>⭐ High Score: <span id="high">0</span></div>
+
+</div>
+
+<input id="nameInput" placeholder="Enter your name">
+
+<button onclick="saveName()">Save</button>
 
 <div id="menu" class="grid"></div>
 
@@ -44,47 +158,91 @@
 
 <script>
 
+let coins=localStorage.getItem("coins")||0;
+
+let high=localStorage.getItem("high")||0;
+
+let player=localStorage.getItem("name")||"Player";
+
+document.getElementById("coins").innerText=coins;
+
+document.getElementById("high").innerText=high;
+
+document.getElementById("player").innerText=player;
+
+function saveName(){
+
+  let n=nameInput.value;
+
+  localStorage.setItem("name",n);
+
+  player=n;
+
+  document.getElementById("player").innerText=n;
+
+}
+
+function addCoins(n){
+
+  coins=parseInt(coins)+n;
+
+  localStorage.setItem("coins",coins);
+
+  document.getElementById("coins").innerText=coins;
+
+}
+
+function setHigh(n){
+
+  if(n>high){
+
+    high=n;
+
+    localStorage.setItem("high",n);
+
+    document.getElementById("high").innerText=n;
+
+  }
+
+}
+
 let games=[
 
-["Neon Tap","Tap as fast as you can in 10 seconds!",tapGame],
+["Tap Master",tap],
 
-["Reaction Flash","Click only when it says CLICK!",reactionGame],
+["Reaction",reaction],
 
-["Memory Glow","Match the emoji pairs!",memoryGame],
+["Math",math],
 
-["Math Blaster","Solve fast math problems!",mathGame],
+["Guess",guess],
 
-["Word Scramble","Unscramble the word!",wordGame],
+["Aim",aim],
 
-["Color Rush","Pick the color, not the word!",colorGame],
+["Color",color],
 
-["Dodge Cube","Dodge falling neon blocks!",dodgeGame],
+["Spam Click",spam],
 
-["Guess Code","Guess the secret number!",guessGame],
+["Lucky Spin",spin],
 
-["Aim Trainer","Click the moving target!",aimGame],
+["Fast Type",type],
 
-["Cyber Quiz","Answer quick questions!",quizGame]
+["Mini Quiz",quiz]
 
 ];
 
 let menu=document.getElementById("menu");
 
-let game=document.getElementById("game");
-
 games.forEach((g,i)=>{
 
   menu.innerHTML+=`
 
-    <div class="card">
+  <div class="card">
 
-      <h2>${g[0]}</h2>
+    <h3>${g[0]}</h3>
 
-      <p>${g[1]}</p>
+    <button onclick="games[${i}][1]()">PLAY</button>
 
-      <button onclick="games[${i}][2]()">PLAY NOW</button>
-
-    </div>`;
+  </div>`;
 
 });
 
@@ -94,35 +252,33 @@ function back(){
 
 }
 
-function tapGame(){
+function tap(){
 
-  let score=0;
-
-  let time=10;
+  let s=0,t=10;
 
   game.innerHTML=`
 
-    <h2>Neon Tap</h2>
+  <h2>Tap!</h2>
 
-    <p>Time: <span id="t">${time}</span></p>
+  <p>${t}s</p>
 
-    <p class="big">Score: <span id="s">0</span></p>
+  <button onclick="s++;this.innerText=s">TAP</button>
 
-    <button onclick="score++;s.innerText=score">TAP!</button>
-
-    <br><button onclick="back()">Back</button>`;
+  <button onclick="back()">Back</button>`;
 
   let timer=setInterval(()=>{
 
-    time--;
+    t--;
 
-    t.innerText=time;
-
-    if(time<=0){
+    if(t<=0){
 
       clearInterval(timer);
 
-      alert("Final score: "+score);
+      addCoins(s);
+
+      setHigh(s);
+
+      alert("Score "+s);
 
     }
 
@@ -130,377 +286,129 @@ function tapGame(){
 
 }
 
-function reactionGame(){
+function reaction(){
 
-  game.innerHTML=`
+  game.innerHTML=`<h2>Wait...</h2><button id="b">Wait</button>`;
 
-    <h2>Reaction Flash</h2>
-
-    <p>Wait until the button changes.</p>
-
-    <button id="rbtn">WAIT...</button>
-
-    <br><button onclick="back()">Back</button>`;
-
-  let ready=false;
-
-  let start=0;
-
-  rbtn.onclick=()=>{
-
-    if(!ready){alert("Too early!");return;}
-
-    alert("Reaction time: "+(Date.now()-start)+" ms");
-
-  };
+  let start;
 
   setTimeout(()=>{
 
-    ready=true;
+    b.innerText="CLICK!";
 
     start=Date.now();
 
-    rbtn.innerText="CLICK NOW!";
+    b.onclick=()=>{
 
-    rbtn.style.background="lime";
+      let r=Date.now()-start;
 
-    rbtn.style.color="black";
+      addCoins(10);
 
-  },Math.random()*3000+1500);
+      alert(r+"ms");
 
-}
+    };
 
-function memoryGame(){
-
-  let icons=["🚀","👾","💎","🔥","⚡","🌙"];
-
-  let cards=[...icons,...icons].sort(()=>Math.random()-0.5);
-
-  let first=null;
-
-  let lock=false;
-
-  let found=0;
-
-  game.innerHTML=`<h2>Memory Glow</h2><div id="board" class="grid"></div><button onclick="back()">Back</button>`;
-
-  cards.forEach((c,i)=>{
-
-    board.innerHTML+=`<button id="c${i}" onclick="flip(${i},'${c}')">?</button>`;
-
-  });
-
-  window.flip=(i,c)=>{
-
-    let btn=document.getElementById("c"+i);
-
-    if(lock || btn.innerText!="?") return;
-
-    btn.innerText=c;
-
-    if(!first){
-
-      first=[i,c];
-
-    } else {
-
-      if(first[1]===c){
-
-        found++;
-
-        first=null;
-
-        if(found===icons.length) alert("You win!");
-
-      } else {
-
-        lock=true;
-
-        setTimeout(()=>{
-
-          btn.innerText="?";
-
-          document.getElementById("c"+first[0]).innerText="?";
-
-          first=null;
-
-          lock=false;
-
-        },700);
-
-      }
-
-    }
-
-  };
+  },2000);
 
 }
 
-function mathGame(){
+function math(){
 
-  let score=0;
+  let a=Math.floor(Math.random()*10);
 
-  let time=30;
-
-  let a,b,ans;
+  let b=Math.floor(Math.random()*10);
 
   game.innerHTML=`
 
-    <h2>Math Blaster</h2>
+  <h2>${a}+${b}</h2>
 
-    <p>Time: <span id="mt">30</span></p>
+  <input id="m">
 
-    <p id="q"></p>
+  <button onclick="check()">OK</button>`;
 
-    <input id="answer">
+  window.check=()=>{
 
-    <button onclick="checkMath()">OK</button>
+    if(Number(m.value)==a+b){
 
-    <p>Score: <span id="ms">0</span></p>
+      addCoins(5);
 
-    <button onclick="back()">Back</button>`;
+      alert("Correct");
 
-  function newQ(){
-
-    a=Math.ceil(Math.random()*20);
-
-    b=Math.ceil(Math.random()*20);
-
-    ans=a+b;
-
-    q.innerText=a+" + "+b+" = ?";
-
-    answer.value="";
+    }
 
   }
 
-  window.checkMath=()=>{
+}
 
-    if(Number(answer.value)===ans){
+function guess(){
 
-      score++;
+  let n=Math.floor(Math.random()*10);
 
-      ms.innerText=score;
+  game.innerHTML=`<input id="g"><button onclick="play()">Guess</button>`;
 
-      newQ();
+  window.play=()=>{
+
+    if(Number(g.value)==n){
+
+      addCoins(10);
+
+      alert("Win!");
 
     }
-
-  };
-
-  newQ();
-
-  let timer=setInterval(()=>{
-
-    time--;
-
-    mt.innerText=time;
-
-    if(time<=0){
-
-      clearInterval(timer);
-
-      alert("Score: "+score);
-
-    }
-
-  },1000);
-
-}
-
-function wordGame(){
-
-  let words=["NEON","CYBER","ARCADE","GHOST","LASER","POWER"];
-
-  let w=words[Math.floor(Math.random()*words.length)];
-
-  let scr=w.split("").sort(()=>Math.random()-0.5).join("");
-
-  game.innerHTML=`
-
-    <h2>Word Scramble</h2>
-
-    <p class="big">${scr}</p>
-
-    <input id="word">
-
-    <button onclick="alert(word.value.toUpperCase()==='${w}'?'Correct!':'Try again!')">Check</button>
-
-    <br><button onclick="back()">Back</button>`;
-
-}
-
-function colorGame(){
-
-  let colors=["red","blue","green","yellow","purple"];
-
-  let real=colors[Math.floor(Math.random()*colors.length)];
-
-  let fake=colors[Math.floor(Math.random()*colors.length)];
-
-  game.innerHTML=`
-
-    <h2>Color Rush</h2>
-
-    <p>Click the COLOR of the word, not what the word says.</p>
-
-    <h1 style="color:${real}">${fake}</h1>
-
-    ${colors.map(c=>`<button onclick="alert('${real}'==='${c}'?'Correct!':'Wrong!')">${c}</button>`).join("")}
-
-    <br><button onclick="back()">Back</button>`;
-
-}
-
-function dodgeGame(){
-
-  game.innerHTML=`
-
-    <h2>Dodge Cube</h2>
-
-    <p>Move your mouse or finger to dodge blocks.</p>
-
-    <canvas id="can" width="360" height="360"></canvas>
-
-    <br><button onclick="back()">Back</button>`;
-
-  let ctx=can.getContext("2d");
-
-  let x=170;
-
-  let blocks=[];
-
-  let score=0;
-
-  let run=true;
-
-  can.onmousemove=e=>x=e.offsetX-15;
-
-  can.ontouchmove=e=>{
-
-    x=e.touches[0].clientX-can.getBoundingClientRect().left-15;
-
-  };
-
-  function loop(){
-
-    if(!run)return;
-
-    ctx.clearRect(0,0,360,360);
-
-    ctx.fillStyle="#00f3ff";
-
-    ctx.fillRect(x,330,30,30);
-
-    if(Math.random()<0.04) blocks.push({x:Math.random()*330,y:0});
-
-    ctx.fillStyle="#bc13fe";
-
-    blocks.forEach(b=>{
-
-      b.y+=4;
-
-      ctx.fillRect(b.x,b.y,30,30);
-
-      if(b.y>310 && b.x<x+30 && b.x+30>x){
-
-        run=false;
-
-        alert("Game over! Score: "+score);
-
-      }
-
-    });
-
-    score++;
-
-    requestAnimationFrame(loop);
 
   }
 
-  loop();
+}
+
+function aim(){
+
+  game.innerHTML=`<button onclick="hit()" style="position:absolute">🎯</button>`;
+
+  window.hit=()=>{
+
+    addCoins(2);
+
+  }
 
 }
 
-function guessGame(){
+function color(){
 
-  let secret=Math.ceil(Math.random()*50);
+  let c=["red","blue","green"];
 
-  let tries=0;
+  let r=c[Math.floor(Math.random()*3)];
 
-  game.innerHTML=`
-
-    <h2>Guess Code</h2>
-
-    <p>Guess a number from 1 to 50</p>
-
-    <input id="gnum">
-
-    <button onclick="tries++;let n=Number(gnum.value);alert(n===${secret}?'Correct in '+tries+' tries!':n<${secret}?'Too low':'Too high')">Guess</button>
-
-    <br><button onclick="back()">Back</button>`;
+  game.innerHTML=`<h2 style="color:${r}">${r}</h2>`;
 
 }
 
-function aimGame(){
+function spam(){
 
-  let score=0;
+  let s=0;
 
-  game.innerHTML=`
-
-    <h2>Aim Trainer</h2>
-
-    <p>Score: <span id="as">0</span></p>
-
-    <div id="target" style="position:relative;margin:20px auto;width:300px;height:300px;border:2px solid #00f3ff">
-
-      <button id="dot" onclick="score++;as.innerText=score;move()" style="position:absolute">🎯</button>
-
-    </div>
-
-    <button onclick="back()">Back</button>`;
-
-  window.move=()=>{
-
-    dot.style.left=Math.random()*240+"px";
-
-    dot.style.top=Math.random()*240+"px";
-
-  };
-
-  move();
+  game.innerHTML=`<button onclick="s++;this.innerText=s">CLICK</button>`;
 
 }
 
-function quizGame(){
+function spin(){
 
-  let qs=[
+  let r=Math.floor(Math.random()*50);
 
-    ["2 + 2?", "4"],
+  addCoins(r);
 
-    ["Color of the sky?", "blue"],
+  alert("You won "+r);
 
-    ["Opposite of cold?", "hot"],
+}
 
-    ["HTML makes a?", "website"],
+function type(){
 
-    ["Fast animal: cheetah or turtle?", "cheetah"]
+  game.innerHTML=`<input placeholder="type fast">`;
 
-  ];
+}
 
-  let q=qs[Math.floor(Math.random()*qs.length)];
+function quiz(){
 
-  game.innerHTML=`
-
-    <h2>Cyber Quiz</h2>
-
-    <p>${q[0]}</p>
-
-    <input id="qa">
-
-    <button onclick="alert(qa.value.toLowerCase()==='${q[1]}'?'Correct!':'Wrong!')">Answer</button>
-
-    <br><button onclick="back()">Back</button>`;
+  game.innerHTML=`<h2>2+2?</h2><input id="q"><button onclick="if(q.value==4)addCoins(5)">OK</button>`;
 
 }
 
